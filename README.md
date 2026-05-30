@@ -25,4 +25,4 @@ python tracker.py
 ```
 
 ## Author
-Albright Ndamati — Medical graduate and aspiring Data Engineer / Digital Health Product Builder
+Albright Ndamati — Medical graduate, Data Engineer and Digital Health Product Builder
