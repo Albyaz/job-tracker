@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Job Tracker</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #0f1117; color: #e0e0e0; }
+        nav { background: #1a1d2e; padding: 16px 32px; display: flex; gap: 24px; align-items: center; border-bottom: 1px solid #2a2d3e; }
+        nav h1 { color: #7c83fd; font-size: 20px; margin-right: auto; }
+        nav a { color: #a0a3b1; text-decoration: none; font-size: 14px; }
+        nav a:hover { color: #7c83fd; }
+        .container { max-width: 1200px; margin: 32px auto; padding: 0 24px; }
+        .top-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+        .top-bar h2 { font-size: 24px; }
+        .btn { padding: 10px 20px; border-radius: 8px; border: none; cursor: pointer; font-size: 14px; text-decoration: none; }
+        .btn-primary { background: #7c83fd; color: white; }
+        .btn-primary:hover { background: #6570fc; }
+        .filters { display: flex; gap: 8px; margin-bottom: 20px; flex-wrap: wrap; }
+        .filter-btn { padding: 6px 16px; border-radius: 20px; border: 1px solid #2a2d3e; background: #1a1d2e; color: #a0a3b1; cursor: pointer; text-decoration: none; font-size: 13px; }
+        .filter-btn.active { background: #7c83fd; color: white; border-color: #7c83fd; }
+        table { width: 100%; border-collapse: collapse; background: #1a1d2e; border-radius: 12px; overflow: hidden; }
+        th { background: #22253a; padding: 14px 16px; text-align: left; font-size: 13px; color: #a0a3b1; text-transform: uppercase; letter-spacing: 0.5px; }
+        td { padding: 14px 16px; border-bottom: 1px solid #22253a; font-size: 14px; }
+        tr:last-child td { border-bottom: none; }
+        tr:hover td { background: #22253a; }
+        .badge { padding: 4px 10px; border-radius: 20px; font-size: 12px; font-weight: 500; }
+        .badge-interested { background: #2a3a5c; color: #7cb9fd; }
+        .badge-applied { background: #2a3a5c; color: #7c83fd; }
+        .badge-interview { background: #2a5c3a; color: #7cfd9b; }
+        .badge-offer { background: #5c4a2a; color: #fdc97c; }
+        .badge-rejected { background: #5c2a2a; color: #fd7c7c; }
+        .actions { display: flex; gap: 8px; align-items: center; }
+        select { background: #22253a; color: #e0e0e0; border: 1px solid #2a2d3e; border-radius: 6px; padding: 4px 8px; font-size: 13px; }
+        .btn-sm { padding: 4px 12px; font-size: 12px; border-radius: 6px; border: none; cursor: pointer; }
+        .btn-update { background: #7c83fd; color: white; }
+        .btn-delete { background: #5c2a2a; color: #fd7c7c; }
+        a.link { color: #7c83fd; text-decoration: none; font-size: 13px; }
+        a.link:hover { text-decoration: underline; }
+        .empty { text-align: center; padding: 60px; color: #a0a3b1; }
+        .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 16px; margin-bottom: 32px; }
+        .stat-card { background: #1a1d2e; border-radius: 12px; padding: 20px; text-align: center; border: 1px solid #2a2d3e; }
+        .stat-card h3 { font-size: 32px; color: #7c83fd; }
+        .stat-card p { font-size: 13px; color: #a0a3b1; margin-top: 4px; }
+    </style>
+</head>
+<body>
+    <nav>
+        <h1>🎯 Job Tracker</h1>
+        <a href="/">Dashboard</a>
+        <a href="/add">Add Job</a>
+        <a href="/scraper">Scraper</a>
+    </nav>
+    <div class="container">
+        <div class="top-bar">
+            <h2>My Applications</h2>
+            <a href="/add" class="btn btn-primary">+ Add Job</a>
+        </div>
+
+        <div class="stats">
+            <div class="stat-card"><h3>{{ jobs|length }}</h3><p>Total Jobs</p></div>
+            <div class="stat-card"><h3>{{ jobs|selectattr('status', 'equalto', 'Applied')|list|length }}</h3><p>Applied</p></div>
+            <div class="stat-card"><h3>{{ jobs|selectattr('status', 'equalto', 'Interview')|list|length }}</h3><p>Interviews</p></div>
+            <div class="stat-card"><h3>{{ jobs|selectattr('status', 'equalto', 'Offer')|list|length }}</h3><p>Offers</p></div>
+        </div>
+
+        <div class="filters">
+            <a href="/" class="filter-btn {% if status_filter == 'All' %}active{% endif %}">All</a>
+            <a href="/?status=Interested" class="filter-btn {% if status_filter == 'Interested' %}active{% endif %}">Interested</a>
+            <a href="/?status=Applied" class="filter-btn {% if status_filter == 'Applied' %}active{% endif %}">Applied</a>
+            <a href="/?status=Interview" class="filter-btn {% if status_filter == 'Interview' %}active{% endif %}">Interview</a>
+            <a href="/?status=Offer" class="filter-btn {% if status_filter == 'Offer' %}active{% endif %}">Offer</a>
+            <a href="/?status=Rejected" class="filter-btn {% if status_filter == 'Rejected' %}active{% endif %}">Rejected</a>
+        </div>
+
+        {% if jobs %}
+        <table>
+            <thead>
+                <tr>
+                    <th>Company</th>
+                    <th>Role</th>
+                    <th>Location</th>
+                    <th>Salary</th>
+                    <th>Status</th>
+                    <th>Date</th>
+                    <th>Link</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for job in jobs %}
+                <tr>
+                    <td><strong>{{ job.company }}</strong></td>
+                    <td>{{ job.role }}</td>
+                    <td>{{ job.location or '-' }}</td>
+                    <td>{{ job.salary or '-' }}</td>
+                    <td><span class="badge badge-{{ job.status|lower }}">{{ job.status }}</span></td>
+                    <td>{{ job.date_applied or '-' }}</td>
+                    <td>{% if job.link %}<a href="{{ job.link }}" target="_blank" class="link">Apply →</a>{% else %}-{% endif %}</td>
+                    <td>
+                        <div class="actions">
+                            <form method="POST" action="/update/{{ job.id }}">
+                                <select name="status">
+                                    <option>Interested</option>
+                                    <option>Applied</option>
+                                    <option>Interview</option>
+                                    <option>Offer</option>
+                                    <option>Rejected</option>
+                                </select>
+                                <button type="submit" class="btn-sm btn-update">Update</button>
+                            </form>
+                            <a href="/delete/{{ job.id }}" class="btn-sm btn-delete" onclick="return confirm('Delete this job?')">Delete</a>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <div class="empty">
+            <p>No jobs found. <a href="/add" style="color:#7c83fd">Add one</a> or <a href="/scraper" style="color:#7c83fd">scrape some jobs</a>.</p>
+        </div>
+        {% endif %}
+    </div>
+</body>
+</html>

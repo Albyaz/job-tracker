@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Job</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #0f1117; color: #e0e0e0; }
+        nav { background: #1a1d2e; padding: 16px 32px; display: flex; gap: 24px; align-items: center; border-bottom: 1px solid #2a2d3e; }
+        nav h1 { color: #7c83fd; font-size: 20px; margin-right: auto; }
+        nav a { color: #a0a3b1; text-decoration: none; font-size: 14px; }
+        nav a:hover { color: #7c83fd; }
+        .container { max-width: 600px; margin: 40px auto; padding: 0 24px; }
+        h2 { margin-bottom: 24px; font-size: 24px; }
+        .form-group { margin-bottom: 20px; }
+        label { display: block; font-size: 13px; color: #a0a3b1; margin-bottom: 6px; }
+        input, select, textarea { width: 100%; padding: 10px 14px; background: #1a1d2e; border: 1px solid #2a2d3e; border-radius: 8px; color: #e0e0e0; font-size: 14px; }
+        input:focus, select:focus, textarea:focus { outline: none; border-color: #7c83fd; }
+        textarea { height: 100px; resize: vertical; }
+        .btn { padding: 12px 24px; border-radius: 8px; border: none; cursor: pointer; font-size: 14px; }
+        .btn-primary { background: #7c83fd; color: white; width: 100%; }
+        .btn-primary:hover { background: #6570fc; }
+        .back { display: inline-block; color: #a0a3b1; text-decoration: none; margin-bottom: 20px; font-size: 14px; }
+        .back:hover { color: #7c83fd; }
+    </style>
+</head>
+<body>
+    <nav>
+        <h1>🎯 Job Tracker</h1>
+        <a href="/">Dashboard</a>
+        <a href="/add">Add Job</a>
+        <a href="/scraper">Scraper</a>
+    </nav>
+    <div class="container">
+        <a href="/" class="back">← Back to Dashboard</a>
+        <h2>Add New Job</h2>
+        <form method="POST">
+            <div class="form-group">
+                <label>Company Name *</label>
+                <input type="text" name="company" required placeholder="e.g. Google">
+            </div>
+            <div class="form-group">
+                <label>Role *</label>
+                <input type="text" name="role" required placeholder="e.g. Data Engineer">
+            </div>
+            <div class="form-group">
+                <label>Location</label>
+                <input type="text" name="location" placeholder="e.g. Dublin, Ireland">
+            </div>
+            <div class="form-group">
+                <label>Salary</label>
+                <input type="text" name="salary" placeholder="e.g. 55,000">
+            </div>
+            <div class="form-group">
+                <label>Status</label>
+                <select name="status">
+                    <option value="Interested">Interested</option>
+                    <option value="Applied">Applied</option>
+                    <option value="Interview">Interview</option>
+                    <option value="Offer">Offer</option>
+                    <option value="Rejected">Rejected</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Job Link</label>
+                <input type="url" name="link" placeholder="https://...">
+            </div>
+            <div class="form-group">
+                <label>Notes</label>
+                <textarea name="notes" placeholder="Any notes about this application..."></textarea>
+            </div>
+            <button type="submit" class="btn btn-primary">Save Job</button>
+        </form>
+    </div>
+</body>
+</html>

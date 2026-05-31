@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Job Scraper</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #0f1117; color: #e0e0e0; }
+        nav { background: #1a1d2e; padding: 16px 32px; display: flex; gap: 24px; align-items: center; border-bottom: 1px solid #2a2d3e; }
+        nav h1 { color: #7c83fd; font-size: 20px; margin-right: auto; }
+        nav a { color: #a0a3b1; text-decoration: none; font-size: 14px; }
+        nav a:hover { color: #7c83fd; }
+        .container { max-width: 1200px; margin: 32px auto; padding: 0 24px; }
+        h2 { margin-bottom: 8px; font-size: 24px; }
+        .subtitle { color: #a0a3b1; font-size: 14px; margin-bottom: 24px; }
+        .search-bar { display: flex; gap: 12px; margin-bottom: 16px; }
+        .quick-btns { display: flex; gap: 8px; margin-bottom: 32px; flex-wrap: wrap; }
+        .quick-btn { padding: 6px 16px; border-radius: 20px; border: 1px solid #2a2d3e; background: #1a1d2e; color: #a0a3b1; cursor: pointer; font-size: 13px; }
+        .quick-btn:hover { border-color: #7c83fd; color: #7c83fd; }
+        input[type="text"] { flex: 1; padding: 10px 14px; background: #1a1d2e; border: 1px solid #2a2d3e; border-radius: 8px; color: #e0e0e0; font-size: 14px; }
+        input[type="text"]:focus { outline: none; border-color: #7c83fd; }
+        .btn { padding: 10px 24px; border-radius: 8px; border: none; cursor: pointer; font-size: 14px; }
+        .btn-primary { background: #7c83fd; color: white; }
+        .btn-primary:hover { background: #6570fc; }
+        table { width: 100%; border-collapse: collapse; background: #1a1d2e; border-radius: 12px; overflow: hidden; }
+        th { background: #22253a; padding: 14px 16px; text-align: left; font-size: 13px; color: #a0a3b1; text-transform: uppercase; letter-spacing: 0.5px; }
+        td { padding: 14px 16px; border-bottom: 1px solid #22253a; font-size: 14px; }
+        tr:last-child td { border-bottom: none; }
+        tr:hover td { background: #22253a; }
+        .badge-remote { padding: 4px 10px; border-radius: 20px; font-size: 12px; background: #2a5c3a; color: #7cfd9b; }
+        .badge-onsite { padding: 4px 10px; border-radius: 20px; font-size: 12px; background: #2a2d3e; color: #a0a3b1; }
+        a.link { color: #7c83fd; text-decoration: none; font-size: 13px; }
+        a.link:hover { text-decoration: underline; }
+        .btn-save { padding: 6px 14px; background: #7c83fd; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 12px; }
+        .btn-save:hover { background: #6570fc; }
+        .empty { text-align: center; padding: 60px; color: #a0a3b1; }
+        .results-count { color: #a0a3b1; font-size: 14px; margin-bottom: 16px; }
+    </style>
+</head>
+<body>
+    <nav>
+        <h1>🎯 Job Tracker</h1>
+        <a href="/">Dashboard</a>
+        <a href="/add">Add Job</a>
+        <a href="/scraper">Scraper</a>
+    </nav>
+    <div class="container">
+        <h2>Job Scraper</h2>
+        <p class="subtitle">Searches Ireland (on-site) + Europe, US, Canada, Australia (remote)</p>
+
+        <form method="POST">
+            <div class="search-bar">
+                <input type="text" name="query" placeholder="Search for a role e.g. Data Engineer" value="{{ query }}">
+                <button type="submit" class="btn btn-primary">Search Jobs</button>
+            </div>
+            <div class="quick-btns">
+                <button type="submit" name="query" value="Data Engineer" class="quick-btn">Data Engineer</button>
+                <button type="submit" name="query" value="Data Analyst" class="quick-btn">Data Analyst</button>
+                <button type="submit" name="query" value="Digital Health" class="quick-btn">Digital Health</button>
+                <button type="submit" name="query" value="Product Analyst" class="quick-btn">Product Analyst</button>
+                <button type="submit" name="query" value="Business Analyst" class="quick-btn">Business Analyst</button>
+            </div>
+        </form>
+
+        {% if jobs %}
+        <p class="results-count">{{ jobs|length }} jobs found</p>
+        <table>
+            <thead>
+                <tr>
+                    <th>Company</th>
+                    <th>Role</th>
+                    <th>Location</th>
+                    <th>Remote</th>
+                    <th>Salary</th>
+                    <th>Link</th>
+                    <th>Save</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for job in jobs %}
+                <tr>
+                    <td><strong>{{ job.company }}</strong></td>
+                    <td>{{ job.role }}</td>
+                    <td>{{ job.location or '-' }}</td>
+                    <td><span class="{% if job.remote == 'Yes' %}badge-remote{% else %}badge-onsite{% endif %}">{{ job.remote }}</span></td>
+                    <td>{{ job.salary }}</td>
+                    <td>{% if job.link %}<a href="{{ job.link }}" target="_blank" class="link">View →</a>{% else %}-{% endif %}</td>
+                    <td>
+                        <form method="POST" action="/save_scraped">
+                            <input type="hidden" name="company" value="{{ job.company }}">
+                            <input type="hidden" name="role" value="{{ job.role }}">
+                            <input type="hidden" name="location" value="{{ job.location }}">
+                            <input type="hidden" name="salary" value="{{ job.salary }}">
+                            <input type="hidden" name="link" value="{{ job.link }}">
+                            <input type="hidden" name="description" value="{{ job.description }}">
+                            <button type="submit" class="btn-save">+ Save</button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% elif query %}
+        <div class="empty">
+            <p>No jobs found for "{{ query }}". Try a different search term.</p>
+        </div>
+        {% else %}
+        <div class="empty">
+            <p>Enter a job title above or click a quick search button to find jobs.</p>
+        </div>
+        {% endif %}
+    </div>
+</body>
+</html>
