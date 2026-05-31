@@ -144,3 +144,29 @@ def scraper():
         for result in results:
             jobs.extend(result)
     return render_template("scraper.html", jobs=jobs, query=query)
+
+# ── Save scraped job ──
+@app.route("/save_scraped", methods=["POST"])
+def save_scraped():
+    conn = get_db()
+    conn.execute("""
+        INSERT INTO jobs (company, role, location, salary, status, date_applied, link, notes)
+        VALUES (?, ?, ?, ?, 'Interested', ?, ?, ?)
+    """, (
+        request.form["company"],
+        request.form["role"],
+        request.form["location"],
+        request.form["salary"],
+        str(date.today()),
+        request.form["link"],
+        request.form["description"]
+    ))
+    conn.commit()
+    conn.close()
+    return redirect(url_for("index"))
+
+# Run init_db on startup
+init_db()
+
+if __name__ == "__main__":
+    app.run(debug=True)
